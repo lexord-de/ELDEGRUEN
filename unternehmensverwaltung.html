@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Betriebsverwaltung — GaLaBau & Controller-Handel</title>
+<style>
+  :root{
+    --forest:#1f3d2f;
+    --forest-light:#2c5642;
+    --stone:#efe9dd;
+    --stone-dark:#ddd4c0;
+    --ink:#1a1d1b;
+    --paper:#fffdf9;
+    --circuit:#3454d1;
+    --circuit-light:#eaefff;
+    --warn:#a4451f;
+    --line:#d8d0bd;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--stone);color:var(--ink);font-family:Georgia,'Iowan Old Style',serif;}
+  .app-shell{max-width:1180px;margin:0 auto;padding:28px 24px 80px;}
+
+  /* Header */
+  header.top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--forest);padding-bottom:16px;margin-bottom:6px;}
+  header.top .brand{display:flex;gap:14px;align-items:center;}
+  header.top .mark{width:44px;height:44px;border-radius:50%;background:conic-gradient(from 220deg,var(--forest),var(--circuit),var(--forest));flex:none;}
+  header.top h1{font-size:22px;margin:0;letter-spacing:.3px;color:var(--forest);font-weight:700;}
+  header.top p.sub{margin:2px 0 0;font-family:system-ui,sans-serif;font-size:12px;color:#665;letter-spacing:.08em;text-transform:uppercase;}
+  .status-note{font-family:system-ui,sans-serif;font-size:11px;color:#7a6f57;text-align:right;max-width:280px;line-height:1.5;}
+
+  /* Nav */
+  nav.tabs{display:flex;gap:2px;margin:18px 0 22px;background:var(--stone-dark);padding:4px;border-radius:var(--radius);font-family:system-ui,sans-serif;}
+  nav.tabs button{flex:1;padding:11px 10px;border:none;background:transparent;cursor:pointer;font-size:13px;font-weight:600;color:#5a5344;border-radius:2px;transition:.15s;}
+  nav.tabs button.active{background:var(--forest);color:#fff;}
+  nav.tabs button:not(.active):hover{background:#e4ddc9;}
+
+  section.panel{display:none;}
+  section.panel.active{display:block;animation:fade .2s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px;}
+  .card h2{font-size:16px;margin:0 0 4px;color:var(--forest);}
+  .card .hint{font-family:system-ui,sans-serif;font-size:12px;color:#847a63;margin:0 0 16px;}
+
+  label{display:block;font-family:system-ui,sans-serif;font-size:11px;font-weight:600;color:#5a5344;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:2px;font-family:system-ui,sans-serif;font-size:13.5px;background:#fff;color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--circuit);outline-offset:1px;border-color:var(--circuit);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .grid3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;}
+  .field{margin-bottom:12px;}
+
+  button.btn{font-family:system-ui,sans-serif;font-weight:600;font-size:13px;padding:9px 16px;border-radius:2px;border:1px solid var(--forest);background:var(--forest);color:#fff;cursor:pointer;}
+  button.btn:hover{background:var(--forest-light);}
+  button.btn.ghost{background:transparent;color:var(--forest);}
+  button.btn.ghost:hover{background:var(--stone-dark);}
+  button.btn.danger{background:transparent;border-color:var(--warn);color:var(--warn);}
+  button.btn.danger:hover{background:#fbeae2;}
+  button.btn.circuit{background:var(--circuit);border-color:var(--circuit);}
+  button.btn.circuit:hover{background:#2843b0;}
+
+  table{width:100%;border-collapse:collapse;font-family:system-ui,sans-serif;font-size:13px;}
+  th{text-align:left;padding:8px 6px;border-bottom:2px solid var(--forest);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#5a5344;}
+  td{padding:7px 6px;border-bottom:1px solid var(--line);}
+  tr:hover td{background:#faf7f0;}
+  td input, td select{padding:6px 7px;font-size:13px;}
+
+  .service-row{display:grid;grid-template-columns:2.2fr 1fr .8fr .8fr 1fr 32px;gap:8px;align-items:end;margin-bottom:8px;}
+  .service-row .field{margin-bottom:0;}
+  .remove-btn{background:none;border:none;color:var(--warn);cursor:pointer;font-size:18px;line-height:1;padding:6px;}
+
+  .totals-box{margin-top:16px;padding:14px 16px;background:var(--circuit-light);border-radius:2px;font-family:system-ui,sans-serif;}
+  .totals-box .row{display:flex;justify-content:space-between;padding:3px 0;font-size:13.5px;}
+  .totals-box .row.final{font-weight:700;font-size:16px;border-top:1px solid #c3cdf5;margin-top:6px;padding-top:8px;color:var(--forest);}
+
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;font-family:system-ui,sans-serif;}
+  .pill.gala{background:#dcecdf;color:var(--forest);}
+  .pill.ctrl{background:var(--circuit-light);color:var(--circuit);}
+  .pill.income{background:#dcecdf;color:#1f5c34;}
+  .pill.expense{background:#fbe6dc;color:var(--warn);}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+  .stat{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px;}
+  .stat .num{font-size:26px;font-weight:700;color:var(--forest);font-family:Georgia,serif;}
+  .stat .num.neg{color:var(--warn);}
+  .stat .lbl{font-family:system-ui,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#847a63;margin-top:2px;}
+
+  .banner{background:#fff8e8;border:1px solid #e8cf8a;border-radius:2px;padding:12px 16px;font-family:system-ui,sans-serif;font-size:12.5px;color:#6b5410;margin-bottom:18px;line-height:1.6;}
+  .banner b{color:#4a3900;}
+
+  /* Invoice preview / print */
+  #invoicePreview{background:#fff;border:1px solid var(--line);padding:44px;font-family:Georgia,serif;color:#111;}
+  #invoicePreview .inv-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--forest);padding-bottom:18px;margin-bottom:26px;}
+  #invoicePreview .inv-head img{max-height:70px;max-width:220px;}
+  #invoicePreview .inv-head .co{text-align:right;font-family:system-ui,sans-serif;font-size:12px;line-height:1.5;color:#333;}
+  #invoicePreview h2.doctitle{font-size:24px;letter-spacing:.5px;color:var(--forest);margin:0 0 2px;}
+  #invoicePreview .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;font-family:system-ui,sans-serif;font-size:13px;}
+  #invoicePreview .meta-grid .lbl{font-size:10px;text-transform:uppercase;color:#888;letter-spacing:.06em;margin-bottom:3px;}
+  #invoicePreview table.inv-table{width:100%;border-collapse:collapse;font-family:system-ui,sans-serif;font-size:13px;margin-bottom:6px;}
+  #invoicePreview table.inv-table th{background:var(--forest);color:#fff;padding:9px 8px;text-align:left;font-size:11px;text-transform:uppercase;}
+  #invoicePreview table.inv-table td{padding:8px;border-bottom:1px solid #eee;}
+  #invoicePreview .inv-totals{margin-left:auto;width:280px;font-family:system-ui,sans-serif;font-size:13px;margin-top:10px;}
+  #invoicePreview .inv-totals .row{display:flex;justify-content:space-between;padding:4px 0;}
+  #invoicePreview .inv-totals .row.final{font-weight:700;font-size:16px;border-top:2px solid var(--forest);margin-top:6px;padding-top:8px;}
+  #invoicePreview .footnote{margin-top:36px;font-family:system-ui,sans-serif;font-size:10.5px;color:#777;border-top:1px solid #eee;padding-top:12px;line-height:1.6;}
+  #invoicePreview .payline{margin-top:18px;font-family:system-ui,sans-serif;font-size:12px;background:#f7f5ef;padding:10px 14px;border-left:3px solid var(--forest);}
+
+  @media print{
+    body *{visibility:hidden;}
+    #invoicePreview, #invoicePreview *{visibility:visible;}
+    #invoicePreview{position:absolute;top:0;left:0;width:100%;border:none;padding:20px 30px;}
+  }
+  @media (max-width:760px){
+    .grid2,.grid3,.stat-grid{grid-template-columns:1fr;}
+    .service-row{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="top">
+    <div class="brand">
+      <div class="mark"></div>
+      <div>
+        <h1 id="companyNameHeader">Betriebsverwaltung</h1>
+        <p class="sub">GaLaBau · Entrümpelung · Handwerk · Individualisierte Controller</p>
+      </div>
+    </div>
+    <div class="status-note">Lokale Verwaltung für Angebote, Rechnungen &amp; Buchhaltung.<br>Kein Ersatz für Steuerberatung — Details siehe Hinweis unten.</div>
+  </header>
+
+  <div class="banner">
+    <b>Wichtiger Hinweis:</b> Dieses Tool erstellt professionelle Angebots-/Rechnungs-PDFs und eine strukturierte Buchhaltungs-Übersicht. Es kann jedoch keine E-Mails automatisch versenden (dafür bräuchte es einen Server mit E-Mail-Zugang) — stattdessen erzeugt der Button "Per E-Mail senden" einen fertigen Entwurf in deinem Mail-Programm mit der Rechnung angehängt/verlinkt. Eine echte <b>GoBD-zertifizierte</b> Software erfordert ein unveränderbares, geprüftes Ablagesystem; dieses Tool bietet dir stattdessen eine <b>fortlaufende, lückenlose Nummerierung + Änderungsprotokoll</b> als gute Grundlage — die endgültige GoBD-Konformität solltest du mit deinem Steuerberater absichern.
+  </div>
+
+  <nav class="tabs">
+    <button class="active" data-tab="settings">Firmendaten</button>
+    <button data-tab="invoice">Angebot / Rechnung</button>
+    <button data-tab="ledger">Buchhaltung</button>
+    <button data-tab="tax">Steuer-Übersicht</button>
+  </nav>
+
+  <!-- SETTINGS -->
+  <section class="panel active" id="tab-settings">
+    <div class="card">
+      <h2>Firmenprofil</h2>
+      <p class="hint">Diese Angaben erscheinen auf jeder Rechnung/jedem Angebot.</p>
+      <div class="grid2">
+        <div class="field"><label>Firmenname</label><input id="s_name" placeholder="Mustermann GaLaBau & Controller-Manufaktur"></div>
+        <div class="field"><label>Inhaber</label><input id="s_owner" placeholder="Max Mustermann"></div>
+        <div class="field"><label>Straße &amp; Hausnummer</label><input id="s_street"></div>
+        <div class="field"><label>PLZ &amp; Ort</label><input id="s_city"></div>
+        <div class="field"><label>Telefon</label><input id="s_phone"></div>
+        <div class="field"><label>E-Mail</label><input id="s_email" type="email"></div>
+        <div class="field"><label>Steuernummer</label><input id="s_taxid" placeholder="12/345/67890"></div>
+        <div class="field"><label>USt-IdNr. (falls vorhanden)</label><input id="s_vatid" placeholder="DE123456789"></div>
+        <div class="field"><label>IBAN</label><input id="s_iban"></div>
+        <div class="field"><label>Bank</label><input id="s_bank"></div>
+        <div class="field"><label>Kleinunternehmerregelung (§19 UStG)?</label>
+          <select id="s_kleinunternehmer"><option value="nein">Nein — Umsatzsteuer wird ausgewiesen</option><option value="ja">Ja — keine USt ausgewiesen</option></select>
+        </div>
+        <div class="field"><label>Standard-Umsatzsteuersatz</label>
+          <select id="s_vatrate"><option value="19">19 %</option><option value="7">7 %</option><option value="0">0 %</option></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Logo hochladen (PNG/JPG)</label>
+        <input type="file" id="s_logo" accept="image/*">
+        <div id="logoPreviewWrap" style="margin-top:8px;"></div>
+      </div>
+      <button class="btn" id="saveSettings">Firmendaten speichern</button>
+      <span id="settingsSaved" style="font-family:system-ui,sans-serif;font-size:12px;color:#1f5c34;margin-left:10px;"></span>
+    </div>
+  </section>
+
+  <!-- INVOICE / ANGEBOT -->
+  <section class="panel" id="tab-invoice">
+    <div class="card">
+      <h2>Neues Dokument</h2>
+      <div class="grid3">
+        <div class="field"><label>Dokumenttyp</label>
+          <select id="i_type"><option value="Rechnung">Rechnung</option><option value="Angebot">Angebot</option></select>
+        </div>
+        <div class="field"><label>Dokumentnummer</label><input id="i_number" readonly></div>
+        <div class="field"><label>Datum</label><input id="i_date" type="date"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Kundendaten</h2>
+      <div class="grid2">
+        <div class="field"><label>Name / Firma</label><input id="c_name" placeholder="Familie Beispiel / Firma XY GmbH"></div>
+        <div class="field"><label>Ansprechpartner (optional)</label><input id="c_contact"></div>
+        <div class="field"><label>Straße &amp; Hausnummer</label><input id="c_street"></div>
+        <div class="field"><label>PLZ &amp; Ort</label><input id="c_city"></div>
+        <div class="field"><label>E-Mail (für Versand)</label><input id="c_email" type="email"></div>
+        <div class="field"><label>Leistungszeitraum / Projekt</label><input id="c_project" placeholder="z. B. Gartenpflege Juni 2026"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Leistungen / Positionen</h2>
+      <p class="hint">Wähle aus deiner Leistungsliste oder trage frei ein. Preise sind Nettopreise.</p>
+      <div id="serviceRows"></div>
+      <button class="btn ghost" id="addRow" type="button">+ Position hinzufügen</button>
+
+      <div class="totals-box">
+        <div class="row"><span>Zwischensumme (netto)</span><span id="sumNet">0,00 €</span></div>
+        <div class="row"><span id="vatLabel">zzgl. USt (19 %)</span><span id="sumVat">0,00 €</span></div>
+        <div class="row final"><span>Gesamtbetrag</span><span id="sumGross">0,00 €</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Zahlungsbedingungen &amp; Notizen</h2>
+      <div class="grid2">
+        <div class="field"><label>Zahlungsziel (Tage)</label><input id="i_dueDays" type="number" value="14"></div>
+        <div class="field"><label>Skonto / Hinweis (optional)</label><input id="i_skonto" placeholder="z. B. 2 % Skonto bei Zahlung innerhalb 7 Tagen"></div>
+      </div>
+      <div class="field"><label>Anmerkung auf dem Dokument</label><textarea id="i_note" rows="2" placeholder="Vielen Dank für Ihren Auftrag!"></textarea></div>
+    </div>
+
+    <div class="card" style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn" id="buildPreview">Vorschau erzeugen</button>
+      <button class="btn circuit" id="printPdf">Als PDF drucken/speichern</button>
+      <button class="btn ghost" id="mailInvoice">Per E-Mail senden (Entwurf)</button>
+      <button class="btn ghost" id="saveToLedgerFromInvoice">In Buchhaltung übernehmen</button>
+      <span id="invoiceMsg" style="font-family:system-ui,sans-serif;font-size:12px;color:#1f5c34;align-self:center;"></span>
+    </div>
+
+    <div class="card">
+      <h2>Vorschau</h2>
+      <div id="invoicePreview"><p style="font-family:system-ui,sans-serif;color:#999;">Klicke "Vorschau erzeugen", um das Dokument anzuzeigen.</p></div>
+    </div>
+
+    <div class="card">
+      <h2>Archiv (E-Mail-/Rechnungsablage)</h2>
+      <p class="hint">Alle erzeugten Dokumente werden hier fortlaufend nummeriert abgelegt (Grundlage für Nachweispflicht).</p>
+      <table id="archiveTable"><thead><tr><th>Nr.</th><th>Typ</th><th>Datum</th><th>Kunde</th><th>Betrag</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- LEDGER -->
+  <section class="panel" id="tab-ledger">
+    <div class="card">
+      <h2>Neue Buchung</h2>
+      <div class="grid3">
+        <div class="field"><label>Datum</label><input id="l_date" type="date"></div>
+        <div class="field"><label>Art</label><select id="l_type"><option value="Einnahme">Einnahme</option><option value="Ausgabe">Ausgabe</option></select></div>
+        <div class="field"><label>Geschäftsbereich</label><select id="l_segment"><option value="GaLaBau">Gala-Bau / Dienstleistung</option><option value="Controller">Controller-Handel</option><option value="Allgemein">Allgemein / Sonstiges</option></select></div>
+      </div>
+      <div class="grid3">
+        <div class="field"><label>Beschreibung</label><input id="l_desc" placeholder="z. B. Rechnung 2026-014 / Materialkauf Baumarkt"></div>
+        <div class="field"><label>Betrag netto (€)</label><input id="l_amount" type="number" step="0.01"></div>
+        <div class="field"><label>USt-Satz</label><select id="l_vat"><option value="19">19 %</option><option value="7">7 %</option><option value="0">0 %</option></select></div>
+      </div>
+      <button class="btn" id="addLedgerRow">Buchung hinzufügen</button>
+    </div>
+
+    <div class="card">
+      <h2>Alle Buchungen</h2>
+      <div class="field" style="max-width:260px;"><label>Filter Geschäftsbereich</label>
+        <select id="ledgerFilter"><option value="Alle">Alle</option><option value="GaLaBau">Gala-Bau / Dienstleistung</option><option value="Controller">Controller-Handel</option><option value="Allgemein">Allgemein / Sonstiges</option></select>
+      </div>
+      <table id="ledgerTable"><thead><tr><th>Datum</th><th>Art</th><th>Bereich</th><th>Beschreibung</th><th>Netto</th><th>USt</th><th>Brutto</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- TAX -->
+  <section class="panel" id="tab-tax">
+    <div class="card">
+      <h2>Zeitraum wählen</h2>
+      <div class="grid2">
+        <div class="field"><label>Von</label><input id="t_from" type="date"></div>
+        <div class="field"><label>Bis</label><input id="t_to" type="date"></div>
+      </div>
+      <button class="btn ghost" id="calcTax">Neu berechnen</button>
+    </div>
+
+    <div class="stat-grid" id="taxStats"></div>
+
+    <div class="card">
+      <h2>Umsatzsteuer-Übersicht (vereinfachte Vorschau)</h2>
+      <table>
+        <tr><td>Umsatzsteuer aus Einnahmen (Umsatzsteuer, die du einnimmst)</td><td id="tx_ust" style="text-align:right;font-weight:700;"></td></tr>
+        <tr><td>Vorsteuer aus Ausgaben (Vorsteuer, die du abziehen kannst)</td><td id="tx_vst" style="text-align:right;font-weight:700;"></td></tr>
+        <tr><td><b>Umsatzsteuer-Zahllast (an Finanzamt) bzw. Erstattung</b></td><td id="tx_zahllast" style="text-align:right;font-weight:700;"></td></tr>
+      </table>
+      <p class="hint" style="margin-top:14px;">Diese Berechnung ist eine Orientierungshilfe auf Basis deiner erfassten Buchungen und ersetzt keine offizielle Umsatzsteuervoranmeldung (ELSTER) oder Steuerberatung.</p>
+    </div>
+
+    <div class="card">
+      <h2>Nach Geschäftsbereich</h2>
+      <table id="segmentTable"><thead><tr><th>Bereich</th><th>Einnahmen</th><th>Ausgaben</th><th>Gewinn (netto)</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const STORAGE_KEY_SETTINGS = 'settings';
+const STORAGE_KEY_LEDGER = 'ledger_entries';
+const STORAGE_KEY_ARCHIVE = 'invoice_archive';
+const STORAGE_KEY_COUNTER = 'invoice_counter';
+
+let settings = {};
+let ledgerEntries = [];
+let archive = [];
+let counter = 0;
+let logoDataUrl = null;
+
+function fmt(n){ return (Math.round((n+Number.EPSILON)*100)/100).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €'; }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+async function safeGet(key, shared=false){
+  try{ const r = await window.storage.get(key, shared); return r ? JSON.parse(r.value) : null; }
+  catch(e){ return null; }
+}
+async function safeSet(key, value, shared=false){
+  try{ await window.storage.set(key, JSON.stringify(value), shared); }catch(e){ console.error('storage error', e); }
+}
+
+// ---------- Tabs ----------
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('section.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------- Service catalogue ----------
+const CATALOG = [
+  {name:'Grünflächenpflege (Rasenmähen, Heckenschnitt)', unit:'Stunde', price:38},
+  {name:'Grünflächenpflege (Pauschale je m²/Monat)', unit:'m²', price:1.2},
+  {name:'Entrümpelung Wohnung/Haus', unit:'Pauschale', price:450},
+  {name:'Abriss- und Rückbauarbeiten', unit:'Stunde', price:45},
+  {name:'Handwerksarbeiten (Montage/Aufbau)', unit:'Stunde', price:42},
+  {name:'Bodenverlegung', unit:'m²', price:28},
+  {name:'Hausmeister-/Objektservice', unit:'Stunde', price:35},
+  {name:'Transportdienstleistung', unit:'Fahrt', price:60},
+  {name:'Individualisierter Controller — Standard', unit:'Stück', price:89},
+  {name:'Individualisierter Controller — Premium', unit:'Stück', price:149},
+  {name:'Controller-Reparatur/Umbau', unit:'Stunde', price:35},
+  {name:'Freie Position', unit:'Stück', price:0},
+];
+
+function makeServiceRow(data){
+  data = data || {name:CATALOG[0].name, unit:CATALOG[0].unit, price:CATALOG[0].price, qty:1};
+  const row = document.createElement('div');
+  row.className = 'service-row';
+  row.innerHTML = `
+    <div class="field"><label>Leistung</label>
+      <select class="srv-select">
+        ${CATALOG.map(c=>`<option value="${c.name}" ${c.name===data.name?'selected':''}>${c.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label>Einheit</label><input class="srv-unit" value="${data.unit}"></div>
+    <div class="field"><label>Menge</label><input class="srv-qty" type="number" step="0.01" value="${data.qty}"></div>
+    <div class="field"><label>Einzelpreis (€)</label><input class="srv-price" type="number" step="0.01" value="${data.price}"></div>
+    <div class="field"><label>Summe</label><input class="srv-sum" readonly value="0,00 €"></div>
+    <button class="remove-btn" type="button" title="Entfernen">✕</button>
+  `;
+  const sel = row.querySelector('.srv-select');
+  const unitInp = row.querySelector('.srv-unit');
+  const priceInp = row.querySelector('.srv-price');
+  sel.addEventListener('change', ()=>{
+    const found = CATALOG.find(c=>c.name===sel.value);
+    if(found){ unitInp.value = found.unit; priceInp.value = found.price; }
+    recalcInvoice();
+  });
+  row.querySelectorAll('input').forEach(i=>i.addEventListener('input', recalcInvoice));
+  row.querySelector('.remove-btn').addEventListener('click', ()=>{ row.remove(); recalcInvoice(); });
+  document.getElementById('serviceRows').appendChild(row);
+  recalcInvoice();
+}
+
+document.getElementById('addRow').addEventListener('click', ()=>makeServiceRow());
+
+function getVatRate(){
+  if(settings.kleinunternehmer === 'ja') return 0;
+  return parseFloat(settings.vatrate || 19);
+}
+
+function recalcInvoice(){
+  let net = 0;
+  document.querySelectorAll('.service-row').forEach(row=>{
+    const qty = parseFloat(row.querySelector('.srv-qty').value)||0;
+    const price = parseFloat(row.querySelector('.srv-price').value)||0;
+    const sum = qty*price;
+    row.querySelector('.srv-sum').value = fmt(sum);
+    net += sum;
+  });
+  const rate = getVatRate();
+  const vat = net * rate/100;
+  document.getElementById('sumNet').textContent = fmt(net);
+  document.getElementById('vatLabel').textContent = settings.kleinunternehmer==='ja' ? 'USt (gem. §19 UStG nicht erhoben)' : `zzgl. USt (${rate} %)`;
+  document.getElementById('sumVat').textContent = fmt(vat);
+  document.getElementById('sumGross').textContent = fmt(net+vat);
+  return {net, vat, gross:net+vat, rate};
+}
+
+// ---------- Settings ----------
+document.getElementById('s_logo').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    logoDataUrl = reader.result;
+    document.getElementById('logoPreviewWrap').innerHTML = `<img src="${logoDataUrl}" style="max-height:60px;">`;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('saveSettings').addEventListener('click', async ()=>{
+  settings = {
+    name: val('s_name'), owner: val('s_owner'), street: val('s_street'), city: val('s_city'),
+    phone: val('s_phone'), email: val('s_email'), taxid: val('s_taxid'), vatid: val('s_vatid'),
+    iban: val('s_iban'), bank: val('s_bank'), kleinunternehmer: val('s_kleinunternehmer'),
+    vatrate: val('s_vatrate'), logo: logoDataUrl
+  };
+  await safeSet(STORAGE_KEY_SETTINGS, settings);
+  document.getElementById('companyNameHeader').textContent = settings.name || 'Betriebsverwaltung';
+  const msg = document.getElementById('settingsSaved');
+  msg.textContent = 'Gespeichert ✓';
+  setTimeout(()=>msg.textContent='',2000);
+  recalcInvoice();
+});
+
+function val(id){ return document.getElementById(id).value; }
+
+// ---------- Invoice number / preview ----------
+async function nextInvoiceNumber(){
+  counter += 1;
+  await safeSet(STORAGE_KEY_COUNTER, counter);
+  const year = new Date().getFullYear();
+  return `${year}-${String(counter).padStart(3,'0')}`;
+}
+
+document.getElementById('i_type').addEventListener('change', ()=>{});
+
+async function ensureDraftNumber(){
+  if(!document.getElementById('i_number').value){
+    document.getElementById('i_number').value = await nextInvoiceNumber();
+  }
+}
+ensureDraftNumber();
+
+document.getElementById('buildPreview').addEventListener('click', async ()=>{
+  await ensureDraftNumber();
+  const totals = recalcInvoice();
+  const type = val('i_type');
+  const number = val('i_number');
+  const date = val('i_date') || todayISO();
+  const due = new Date(date); due.setDate(due.getDate() + (parseInt(val('i_dueDays'))||14));
+
+  const rowsHtml = Array.from(document.querySelectorAll('.service-row')).map(row=>{
+    const name = row.querySelector('.srv-select').value;
+    const unit = row.querySelector('.srv-unit').value;
+    const qty = row.querySelector('.srv-qty').value;
+    const price = parseFloat(row.querySelector('.srv-price').value)||0;
+    const sum = (parseFloat(qty)||0)*price;
+    return `<tr><td>${name}</td><td>${qty} ${unit}</td><td>${fmt(price)}</td><td>${fmt(sum)}</td></tr>`;
+  }).join('');
+
+  const kleinunternehmerNote = settings.kleinunternehmer==='ja'
+    ? '<p style="font-family:system-ui,sans-serif;font-size:11px;color:#555;">Gemäß §19 UStG wird keine Umsatzsteuer berechnet.</p>' : '';
+
+  document.getElementById('invoicePreview').innerHTML = `
+    <div class="inv-head">
+      <div>${settings.logo ? `<img src="${settings.logo}">` : `<h2 class="doctitle">${settings.name||'Ihr Firmenname'}</h2>`}</div>
+      <div class="co">
+        <b>${settings.name||''}</b><br>
+        ${settings.owner||''}<br>
+        ${settings.street||''}<br>
+        ${settings.city||''}<br>
+        ${settings.phone||''} · ${settings.email||''}<br>
+        ${settings.taxid?('St.-Nr.: '+settings.taxid+'<br>'):''}${settings.vatid?('USt-IdNr.: '+settings.vatid):''}
+      </div>
+    </div>
+    <h2 class="doctitle">${type} Nr. ${number}</h2>
+    <div class="meta-grid">
+      <div>
+        <div class="lbl">Kunde</div>
+        <b>${val('c_name')}</b><br>${val('c_contact')?val('c_contact')+'<br>':''}${val('c_street')}<br>${val('c_city')}
+      </div>
+      <div>
+        <div class="lbl">Details</div>
+        Datum: ${new Date(date).toLocaleDateString('de-DE')}<br>
+        ${type==='Rechnung' ? 'Fällig bis: '+due.toLocaleDateString('de-DE')+'<br>' : 'Angebot gültig 14 Tage<br>'}
+        ${val('c_project')?('Projekt: '+val('c_project')):''}
+      </div>
+    </div>
+    <table class="inv-table">
+      <thead><tr><th>Leistung</th><th>Menge</th><th>Einzelpreis</th><th>Summe</th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+    <div class="inv-totals">
+      <div class="row"><span>Zwischensumme</span><span>${fmt(totals.net)}</span></div>
+      <div class="row"><span>${settings.kleinunternehmer==='ja'?'USt':'USt ('+totals.rate+' %)'}</span><span>${fmt(totals.vat)}</span></div>
+      <div class="row final"><span>Gesamt</span><span>${fmt(totals.gross)}</span></div>
+    </div>
+    ${kleinunternehmerNote}
+    ${val('i_skonto')?`<p style="font-family:system-ui,sans-serif;font-size:12px;">${val('i_skonto')}</p>`:''}
+    ${val('i_note')?`<p style="font-family:system-ui,sans-serif;font-size:12px;">${val('i_note')}</p>`:''}
+    <div class="payline">
+      <b>Zahlung an:</b> ${settings.bank||''} · IBAN: ${settings.iban||''}
+    </div>
+    <div class="footnote">
+      ${settings.name||''} · ${settings.owner||''} · ${settings.street||''}, ${settings.city||''} · ${type==='Rechnung' ? 'Rechnungsnummer '+number+' — fortlaufend erfasst am '+new Date().toLocaleString('de-DE') : 'Angebotsnummer '+number}
+    </div>
+  `;
+  document.getElementById('invoiceMsg').textContent = '';
+});
+
+document.getElementById('printPdf').addEventListener('click', async ()=>{
+  document.getElementById('buildPreview').click();
+  setTimeout(()=>window.print(), 150);
+});
+
+document.getElementById('mailInvoice').addEventListener('click', ()=>{
+  const type = val('i_type');
+  const number = val('i_number');
+  const totals = recalcInvoice();
+  const email = val('c_email');
+  const subject = encodeURIComponent(`${type} ${number} — ${settings.name||''}`);
+  const body = encodeURIComponent(
+`Sehr geehrte(r) ${val('c_name')},
+
+anbei erhalten Sie ${type==='Rechnung'?'die Rechnung':'unser Angebot'} Nr. ${number} über ${fmt(totals.gross)}.
+
+Bitte drucken Sie das Dokument im Reiter "Angebot / Rechnung" über "Als PDF drucken/speichern" und hängen Sie es hier an, bevor Sie die Mail senden.
+
+Mit freundlichen Grüßen
+${settings.owner||''}
+${settings.name||''}
+${settings.phone||''}`);
+  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+  document.getElementById('invoiceMsg').textContent = 'Mail-Entwurf geöffnet — PDF bitte manuell anhängen.';
+});
+
+document.getElementById('saveToLedgerFromInvoice').addEventListener('click', async ()=>{
+  const totals = recalcInvoice();
+  const type = val('i_type');
+  const number = val('i_number');
+  const date = val('i_date') || todayISO();
+
+  // determine segment guess from first row
+  const firstRowName = document.querySelector('.srv-select') ? document.querySelector('.srv-select').value : '';
+  const segment = firstRowName.toLowerCase().includes('controller') ? 'Controller' : 'GaLaBau';
+
+  if(type === 'Rechnung'){
+    ledgerEntries.push({
+      id: uid(), date, type:'Einnahme', segment,
+      desc: `${type} ${number} — ${val('c_name')}`,
+      net: totals.net, vatRate: totals.rate, vat: totals.vat, gross: totals.gross
+    });
+    await safeSet(STORAGE_KEY_LEDGER, ledgerEntries);
+    renderLedger();
+  }
+
+  archive.push({id:uid(), number, type, date, customer: val('c_name'), amount: totals.gross, status: type==='Rechnung'?'Offen':'Gesendet'});
+  await safeSet(STORAGE_KEY_ARCHIVE, archive);
+  renderArchive();
+  document.getElementById('invoiceMsg').textContent = type==='Rechnung' ? 'In Buchhaltung als Einnahme übernommen ✓' : 'Im Archiv gespeichert ✓';
+  document.getElementById('i_number').value = '';
+  await ensureDraftNumber();
+});
+
+function renderArchive(){
+  const tbody = document.querySelector('#archiveTable tbody');
+  tbody.innerHTML = archive.slice().reverse().map(a=>`
+    <tr>
+      <td>${a.number}</td><td><span class="pill ${a.type==='Rechnung'?'gala':'ctrl'}">${a.type}</span></td>
+      <td>${new Date(a.date).toLocaleDateString('de-DE')}</td><td>${a.customer}</td>
+      <td>${fmt(a.amount)}</td><td>${a.status}</td>
+      <td><button class="remove-btn" onclick="deleteArchive('${a.id}')">✕</button></td>
+    </tr>`).join('') || '<tr><td colspan="7" style="color:#999;">Noch keine Dokumente gespeichert.</td></tr>';
+}
+window.deleteArchive = async (id)=>{
+  archive = archive.filter(a=>a.id!==id);
+  await safeSet(STORAGE_KEY_ARCHIVE, archive);
+  renderArchive();
+};
+
+// ---------- Ledger ----------
+document.getElementById('addLedgerRow').addEventListener('click', async ()=>{
+  const date = val('l_date') || todayISO();
+  const type = val('l_type');
+  const segment = val('l_segment');
+  const desc = val('l_desc');
+  const net = parseFloat(val('l_amount'))||0;
+  const rate = parseFloat(val('l_vat'))||0;
+  const vat = net*rate/100;
+  ledgerEntries.push({id:uid(), date, type, segment, desc, net, vatRate:rate, vat, gross:net+vat});
+  await safeSet(STORAGE_KEY_LEDGER, ledgerEntries);
+  document.getElementById('l_desc').value=''; document.getElementById('l_amount').value='';
+  renderLedger();
+});
+
+document.getElementById('ledgerFilter').addEventListener('change', renderLedger);
+
+function renderLedger(){
+  const filter = val('ledgerFilter');
+  const tbody = document.querySelector('#ledgerTable tbody');
+  const rows = ledgerEntries.filter(e=> filter==='Alle' || e.segment===filter).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  tbody.innerHTML = rows.map(e=>`
+    <tr>
+      <td>${new Date(e.date).toLocaleDateString('de-DE')}</td>
+      <td><span class="pill ${e.type==='Einnahme'?'income':'expense'}">${e.type}</span></td>
+      <td><span class="pill ${e.segment==='Controller'?'ctrl':'gala'}">${e.segment}</span></td>
+      <td>${e.desc}</td>
+      <td>${fmt(e.net)}</td>
+      <td>${fmt(e.vat)} (${e.vatRate}%)</td>
+      <td><b>${fmt(e.gross)}</b></td>
+      <td><button class="remove-btn" onclick="deleteLedger('${e.id}')">✕</button></td>
+    </tr>`).join('') || '<tr><td colspan="8" style="color:#999;">Noch keine Buchungen.</td></tr>';
+}
+window.deleteLedger = async (id)=>{
+  ledgerEntries = ledgerEntries.filter(e=>e.id!==id);
+  await safeSet(STORAGE_KEY_LEDGER, ledgerEntries);
+  renderLedger();
+};
+
+// ---------- Tax overview ----------
+document.getElementById('calcTax').addEventListener('click', renderTax);
+
+function renderTax(){
+  const from = val('t_from') || '0000-01-01';
+  const to = val('t_to') || '9999-12-31';
+  const inRange = e => e.date >= from && e.date <= to;
+  const entries = ledgerEntries.filter(inRange);
+
+  const income = entries.filter(e=>e.type==='Einnahme');
+  const expense = entries.filter(e=>e.type==='Ausgabe');
+  const incNet = income.reduce((s,e)=>s+e.net,0);
+  const incVat = income.reduce((s,e)=>s+e.vat,0);
+  const expNet = expense.reduce((s,e)=>s+e.net,0);
+  const expVat = expense.reduce((s,e)=>s+e.vat,0);
+  const profit = incNet - expNet;
+  const zahllast = incVat - expVat;
+
+  document.getElementById('taxStats').innerHTML = `
+    <div class="stat"><div class="num">${fmt(incNet)}</div><div class="lbl">Einnahmen (netto)</div></div>
+    <div class="stat"><div class="num">${fmt(expNet)}</div><div class="lbl">Ausgaben (netto)</div></div>
+    <div class="stat"><div class="num ${profit<0?'neg':''}">${fmt(profit)}</div><div class="lbl">Ungefährer Gewinn</div></div>
+    <div class="stat"><div class="num ${zahllast<0?'neg':''}">${fmt(zahllast)}</div><div class="lbl">USt-Zahllast/Erstattung</div></div>
+  `;
+  document.getElementById('tx_ust').textContent = fmt(incVat);
+  document.getElementById('tx_vst').textContent = fmt(expVat);
+  document.getElementById('tx_zahllast').textContent = (zahllast>=0?'Zahllast: ':'Erstattung: ')+fmt(Math.abs(zahllast));
+
+  const segments = ['GaLaBau','Controller','Allgemein'];
+  const segTbody = document.querySelector('#segmentTable tbody');
+  segTbody.innerHTML = segments.map(seg=>{
+    const segInc = entries.filter(e=>e.segment===seg && e.type==='Einnahme').reduce((s,e)=>s+e.net,0);
+    const segExp = entries.filter(e=>e.segment===seg && e.type==='Ausgabe').reduce((s,e)=>s+e.net,0);
+    return `<tr><td>${seg}</td><td>${fmt(segInc)}</td><td>${fmt(segExp)}</td><td><b>${fmt(segInc-segExp)}</b></td></tr>`;
+  }).join('');
+}
+
+// ---------- Init ----------
+async function init(){
+  const s = await safeGet(STORAGE_KEY_SETTINGS);
+  if(s){
+    settings = s;
+    ['s_name','s_owner','s_street','s_city','s_phone','s_email','s_taxid','s_vatid','s_iban','s_bank'].forEach(id=>{
+      const key = id.replace('s_','');
+      if(document.getElementById(id)) document.getElementById(id).value = s[key]||'';
+    });
+    document.getElementById('s_kleinunternehmer').value = s.kleinunternehmer||'nein';
+    document.getElementById('s_vatrate').value = s.vatrate||'19';
+    if(s.logo){ logoDataUrl = s.logo; document.getElementById('logoPreviewWrap').innerHTML = `<img src="${s.logo}" style="max-height:60px;">`; }
+    document.getElementById('companyNameHeader').textContent = s.name || 'Betriebsverwaltung';
+  } else {
+    settings = {kleinunternehmer:'nein', vatrate:'19'};
+  }
+
+  const l = await safeGet(STORAGE_KEY_LEDGER);
+  ledgerEntries = l || [];
+
+  const a = await safeGet(STORAGE_KEY_ARCHIVE);
+  archive = a || [];
+
+  const c = await safeGet(STORAGE_KEY_COUNTER);
+  counter = c || 0;
+
+  document.getElementById('i_date').value = todayISO();
+  document.getElementById('l_date').value = todayISO();
+
+  makeServiceRow();
+  renderLedger();
+  renderArchive();
+  renderTax();
+}
+init();
+</script>
+</body>
+</html>
