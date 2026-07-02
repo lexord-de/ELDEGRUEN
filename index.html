@@ -1147,7 +1147,7 @@ async function doForm(){
       alert('Fehler beim Senden ('+res.status+'): '+(data.error||'Unbekannt')+'\n\nBitte schreiben Sie uns direkt an info@eldegruen-service.de');
     }
   }catch(err){
-    alert('Fehler beim Senden: '+err.message+'\n\nBitte schreiben Sie uns direkt an info@eldegruen-service.de');
+    alert('Fehler beim Senden: '+err.message+'\n\nBitte schreiben Sie uns direkt an eldegruen-service@gmx.de');
   }finally{
     btn.disabled=false;btn.textContent=btnTxt;
   }
@@ -1170,7 +1170,7 @@ function sendWR(){
   if(!n||!a||!e||!d){alert('Bitte alle Pflichtfelder ausfüllen.');return}
   const s=encodeURIComponent('Widerrufserklärung – ELDEGRUEN');
   const b=encodeURIComponent(`WIDERRUF\n\nAn: ELDEGRUEN | Garten & Gebäudeservice\nAn der Domsühler Straße 2, 19374 Domsühl\n\nLeistung: ${document.getElementById('wr-note').value||'keine Angabe'}\nVertragsschluss: ${d}\n\nName: ${n}\nAdresse: ${a}\nE-Mail: ${e}\nDatum: ${new Date().toLocaleDateString('de-DE')}`);
-  window.location.href=`mailto:info@eldegruen-service.de?subject=${s}&body=${b}`;
+  window.location.href=`mailto:eldegruen-service@gmx.de?subject=${s}&body=${b}`;
   alert('✅ Widerruf vorbereitet – bitte die E-Mail absenden.');
 }
 
