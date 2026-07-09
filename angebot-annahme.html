@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angebot online ansehen &amp; bestätigen</title>
+
+<!-- Diese Meta-Tags sorgen dafür, dass WhatsApp, Mail-Programme & Co. beim
+     Teilen des Links automatisch eine schöne Vorschaukarte anzeigen statt
+     nur den nackten Link-Text. WICHTIG: Diese Angaben sind für ALLE Angebote
+     gleich (statischer Text), da WhatsApp/Mail den Link NICHT anklicken,
+     sondern die Karte direkt aus dieser Datei lesen, bevor irgendein Code
+     läuft — individuelle Beträge/Kundennamen können hier technisch nicht
+     erscheinen. -->
+<meta property="og:title" content="Angebot online ansehen & bestätigen">
+<meta property="og:description" content="ELDEGRUEN | Garten & Gebäudeservice — Ihr Angebot wartet auf Sie. Jetzt online prüfen und mit einem Klick bestätigen.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://eldegruen-service.de/logo.png">
+<meta name="twitter:card" content="summary">
+<style>
+  body{margin:0;background:#f1ece1;color:#1a1d1b;font-family:'Iowan Old Style',Georgia,serif;padding:0;}
+  .wrap{max-width:560px;margin:0 auto;padding:28px 20px 60px;}
+  .card{background:#fffdf9;border:1px solid #d8d0bd;border-radius:6px;padding:26px 24px;box-shadow:0 2px 10px rgba(30,60,43,.08);}
+  h1{font-size:20px;color:#1e3c2b;margin:0 0 4px;}
+  .logo{display:block;max-width:180px;max-height:80px;margin:0 auto 16px;}
+  .sub{font-family:'Inter',system-ui,sans-serif;font-size:12px;color:#7a6f57;margin-bottom:20px;text-transform:uppercase;letter-spacing:.04em;}
+  .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ede6d6;font-family:'Inter',system-ui,sans-serif;font-size:14px;}
+  .row span:first-child{color:#5b6670;}
+  .row span:last-child{font-weight:600;text-align:right;}
+  .amount{font-size:24px;font-weight:700;color:#1e3c2b;text-align:right;margin-top:14px;font-family:'Iowan Old Style',Georgia,serif;}
+  .btn{display:block;width:100%;margin-top:26px;padding:15px;border:none;border-radius:4px;background:#1e3c2b;color:#fff;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:14.5px;cursor:pointer;text-align:center;text-decoration:none;box-sizing:border-box;}
+  .btn:hover{background:#2d5640;}
+  .btn.secondary{background:transparent;border:1px solid #b0834f;color:#8a6239;margin-top:10px;}
+  .note{font-family:'Inter',system-ui,sans-serif;font-size:11.5px;color:#847a63;line-height:1.6;margin-top:16px;}
+  .confirmed{display:none;text-align:center;padding:20px 0;}
+  .confirmed h2{color:#1e3c2b;font-size:18px;}
+  .confirmed p{font-family:'Inter',system-ui,sans-serif;font-size:13px;color:#5b6670;}
+  .err{font-family:'Inter',system-ui,sans-serif;color:#a4451f;text-align:center;padding:40px 10px;}
+  label.chk{display:flex;gap:8px;align-items:flex-start;font-family:'Inter',system-ui,sans-serif;font-size:12.5px;color:#5b6670;margin-top:20px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="content"></div>
+</div>
+
+<script>
+// Standardwerte für Firma & E-Mail — werden verwendet, falls im Link
+// keine abweichenden Werte übergeben werden.
+const DEFAULT_COMPANY = 'ELDEGRUEN | GARTEN & GEBÄUDESERVICE';
+const DEFAULT_OWNER_EMAIL = 'eldegruen-service@gmx.de';
+
+// Angebotsdaten kommen verschlüsselt (base64) in der URL, z. B.:
+// angebot-annahme.html?d=eyJudW1iZXIiOiIyMDI2LTAwMSIsIC4uLn0=
+function getData(){
+  const p = new URLSearchParams(window.location.search);
+  const raw = p.get('d');
+  if(!raw) return null;
+  try{
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(raw)))));
+    // Kompakte 1-2-Buchstaben-Schlüssel (aus der App) auf sprechende Namen zurückmappen
+    return {
+      number: decoded.number ?? decoded.n,
+      date: decoded.date ?? decoded.d,
+      validUntil: decoded.validUntil ?? decoded.v,
+      customer: decoded.customer ?? decoded.c,
+      project: decoded.project ?? decoded.p,
+      amount: decoded.amount ?? decoded.a,
+      company: decoded.company ?? decoded.co ?? DEFAULT_COMPANY,
+      ownerEmail: decoded.ownerEmail ?? decoded.oe ?? DEFAULT_OWNER_EMAIL
+    };
+  }catch(e){ return null; }
+}
+
+function fmt(n){ return (parseFloat(n)||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €'; }
+
+const data = getData();
+const content = document.getElementById('content');
+
+if(!data || !data.number){
+  content.innerHTML = `<div class="err">Dieser Link ist leider ungültig oder unvollständig.<br>Bitte wende dich an den Absender des Angebots.</div>`;
+} else {
+  content.innerHTML = `
+    <img src="logo.png" alt="${data.company || DEFAULT_COMPANY}" class="logo" onerror="this.style.display='none'">
+    <h1>${data.company || DEFAULT_COMPANY}</h1>
+    <div class="sub">Angebot Nr. ${data.number}${data.date ? ' · ' + new Date(data.date).toLocaleDateString('de-DE') : ''}</div>
+
+    <div class="row"><span>Kunde</span><span>${data.customer || ''}</span></div>
+    ${data.project ? `<div class="row"><span>Projekt</span><span>${data.project}</span></div>` : ''}
+    ${data.validUntil ? `<div class="row"><span>Gültig bis</span><span>${new Date(data.validUntil).toLocaleDateString('de-DE')}</span></div>` : ''}
+
+    <div class="amount">${fmt(data.amount)}</div>
+
+    <div id="acceptArea">
+      <label class="chk"><input type="checkbox" id="agb"> Ich habe das Angebot inkl. Bedingungen zur Kenntnis genommen und nehme es hiermit verbindlich an.</label>
+      <button class="btn" id="acceptBtn" disabled>✔ Angebot verbindlich annehmen</button>
+      <a class="btn secondary" id="declineBtn" href="#">Noch nicht — später entscheiden</a>
+    </div>
+
+    <div class="confirmed" id="confirmedBox">
+      <h2>✔ Vielen Dank!</h2>
+      <p>Bitte tippe im nächsten Schritt in deiner E-Mail-App nur noch auf <b>„Senden"</b> — damit ist deine Bestätigung offiziell beim Anbieter angekommen.</p>
+    </div>
+
+    <p class="note">Hinweis: Diese Seite öffnet nach dem Klick deine E-Mail-App mit einer bereits fertig formulierten Bestätigungsmail. Erst wenn diese Mail beim Anbieter eingegangen ist, gilt der Auftrag als angenommen — ein reiner Klick auf dieser Seite allein reicht (aus technischen Gründen dieser einfachen, serverlosen Lösung) noch nicht aus.</p>
+  `;
+
+  const agb = document.getElementById('agb');
+  const acceptBtn = document.getElementById('acceptBtn');
+  agb.addEventListener('change', ()=> acceptBtn.disabled = !agb.checked);
+
+  acceptBtn.addEventListener('click', ()=>{
+    const now = new Date();
+    const stamp = now.toLocaleString('de-DE');
+    const subject = `Angebot ${data.number} — hiermit angenommen`;
+    const body =
+`Hallo,
+
+hiermit nehme ich Ihr Angebot Nr. ${data.number}${data.project ? ' für "' + data.project + '"' : ''} über ${fmt(data.amount)} verbindlich an.
+
+Bestätigt am: ${stamp}
+Kunde: ${data.customer || ''}
+
+Freundliche Grüße`;
+    window.location.href = `mailto:${data.ownerEmail || DEFAULT_OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    document.getElementById('acceptArea').style.display = 'none';
+    document.getElementById('confirmedBox').style.display = 'block';
+  });
+
+  document.getElementById('declineBtn').addEventListener('click', (e)=> e.preventDefault());
+}
+</script>
+</body>
+</html>
