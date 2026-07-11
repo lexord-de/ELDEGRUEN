@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angebot online ansehen &amp; bestätigen</title>
+
+<!-- Diese Meta-Tags sorgen dafür, dass WhatsApp, Mail-Programme & Co. beim
+     Teilen des Links automatisch eine schöne Vorschaukarte anzeigen statt
+     nur den nackten Link-Text. WICHTIG: Diese Angaben sind für ALLE Angebote
+     gleich (statischer Text), da WhatsApp/Mail den Link NICHT anklicken,
+     sondern die Karte direkt aus dieser Datei lesen, bevor irgendein Code
+     läuft — individuelle Beträge/Kundennamen können hier technisch nicht
+     erscheinen. -->
+<meta property="og:title" content="Angebot online ansehen & bestätigen">
+<meta property="og:description" content="ELDEGRUEN | Garten & Gebäudeservice — Ihr Angebot wartet auf Sie. Jetzt online prüfen und mit einem Klick bestätigen.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://eldegruen-service.de/logo.png">
+<meta name="twitter:card" content="summary">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700;800&display=swap');
+  :root{
+    --forest:#1e3c2b;
+    --forest-light:#2d5640;
+    --slate:#5b6670;
+    --stone:#f1ece1;
+    --stone-dark:#ddd4c0;
+    --ink:#1a1d1b;
+    --paper:#fffdf9;
+    --circuit:#8a6239;
+    --circuit-light:#f5ebde;
+    --gold:#b0834f;
+    --gold-deep:#8a6239;
+    --warn:#a4451f;
+    --line:#d8d0bd;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--stone);color:var(--ink);font-family:'Playfair Display','Iowan Old Style',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  .topbar{height:7px;background:linear-gradient(90deg,var(--forest) 0%,var(--gold) 50%,var(--forest) 100%);}
+  .wrap{max-width:520px;margin:0 auto;padding:32px 18px 60px;}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:30px 26px 26px;box-shadow:0 10px 34px rgba(30,60,43,.10);position:relative;overflow:hidden;animation:riseIn .45s ease;}
+  .card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 92% -6%, rgba(176,131,79,.10), transparent 45%);pointer-events:none;}
+  @keyframes riseIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .logowrap{width:64px;height:64px;border-radius:50%;background:#fff;border:2px solid var(--gold);padding:2px;margin:0 auto 14px;box-shadow:0 2px 8px rgba(30,60,43,.12);position:relative;z-index:1;}
+  .logowrap img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;}
+  .logowrap .fallback{width:100%;height:100%;border-radius:50%;background:var(--forest);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:22px;}
+
+  h1{font-size:18px;color:var(--forest);margin:0 0 3px;text-align:center;font-weight:700;letter-spacing:.2px;position:relative;z-index:1;}
+  .tagline{font-family:'Inter',system-ui,sans-serif;font-size:10.5px;color:var(--gold-deep);text-align:center;text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:18px;}
+
+  .doctitle-row{display:flex;align-items:center;justify-content:center;gap:10px;margin:18px 0 20px;position:relative;z-index:1;}
+  .doctitle-row .dtline{flex:1;height:1px;background:var(--line);}
+  .docbadge{font-family:'Inter',system-ui,sans-serif;font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--gold-deep);background:var(--circuit-light);padding:6px 14px;border-radius:20px;white-space:nowrap;}
+
+  .meta-box{background:#faf8f3;border:1px solid var(--line);border-radius:6px;padding:4px 16px;margin-bottom:6px;position:relative;z-index:1;}
+  .row{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid #ede6d6;font-family:'Inter',system-ui,sans-serif;font-size:13.5px;}
+  .row:last-child{border-bottom:none;}
+  .row span:first-child{color:var(--slate);font-weight:500;}
+  .row span:last-child{font-weight:700;text-align:right;color:var(--ink);}
+
+  .amount-box{text-align:center;margin:22px 0 6px;position:relative;z-index:1;}
+  .amount-lbl{font-family:'Inter',system-ui,sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:#9a8f76;font-weight:700;margin-bottom:4px;}
+  .amount{font-size:32px;font-weight:700;color:var(--forest);font-family:'Playfair Display',Georgia,serif;}
+
+  .divider{border:none;border-top:1px solid var(--line);margin:24px 0;position:relative;z-index:1;}
+
+  label.chk{display:flex;gap:11px;align-items:flex-start;font-family:'Inter',system-ui,sans-serif;font-size:12.5px;color:var(--slate);line-height:1.55;cursor:pointer;position:relative;z-index:1;}
+  label.chk input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:20px;height:20px;min-width:20px;border:1.8px solid var(--gold-deep);border-radius:4px;margin:0;cursor:pointer;position:relative;background:#fff;transition:.15s;}
+  label.chk input[type="checkbox"]:checked{background:var(--forest);border-color:var(--forest);}
+  label.chk input[type="checkbox"]:checked::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;}
+  label.chk input[type="checkbox"]:focus-visible{outline:2px solid var(--circuit);outline-offset:2px;}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;padding:15px;border:none;border-radius:5px;background:var(--forest);color:#fff;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:14.5px;cursor:pointer;text-align:center;text-decoration:none;box-sizing:border-box;transition:.15s;position:relative;z-index:1;}
+  .btn:hover:not(:disabled){background:var(--forest-light);box-shadow:0 3px 10px rgba(30,60,43,.22);}
+  .btn:active:not(:disabled){transform:translateY(1px);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn.secondary{background:transparent;border:1px solid var(--gold-deep);color:var(--circuit);}
+  .btn.secondary:hover:not(:disabled){background:var(--circuit-light);}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--slate);font-size:12.5px;padding:11px;}
+  .btn.ghost:hover:not(:disabled){background:#f2ede1;}
+  .spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .note{font-family:'Inter',system-ui,sans-serif;font-size:11px;color:#847a63;line-height:1.65;margin-top:20px;background:#fff8e8;border:1px solid #e8cf8a;border-radius:5px;padding:11px 13px;position:relative;z-index:1;}
+
+  .state-box{display:none;text-align:center;padding:8px 0 4px;position:relative;z-index:1;animation:riseIn .35s ease;}
+  .state-box .icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px;}
+  .state-box.confirmed .icon{background:#dcecdf;color:var(--forest);}
+  .state-box.declined .icon{background:var(--circuit-light);color:var(--circuit);}
+  .state-box h2{color:var(--forest);font-size:18px;margin:0 0 8px;}
+  .state-box p{font-family:'Inter',system-ui,sans-serif;font-size:13px;color:var(--slate);line-height:1.6;margin:0 0 4px;}
+  .state-box .fallback-msg{font-family:'Inter',system-ui,sans-serif;font-size:11.5px;color:#847a63;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);}
+  .copyfeedback{font-family:'Inter',system-ui,sans-serif;font-size:11.5px;color:var(--forest);margin-top:8px;min-height:14px;font-weight:600;}
+
+  .err{font-family:'Inter',system-ui,sans-serif;color:var(--warn);text-align:center;padding:44px 10px;font-size:14px;line-height:1.6;}
+  .err .icon{font-size:30px;margin-bottom:10px;}
+
+  @media (max-width:420px){
+    .card{padding:24px 18px 22px;}
+    .amount{font-size:27px;}
+  }
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<div class="wrap">
+  <div class="card" id="content"></div>
+</div>
+
+<script>
+// Standardwerte für Firma & E-Mail — werden verwendet, falls im Link
+// keine abweichenden Werte übergeben werden.
+const DEFAULT_COMPANY = 'ELDEGRUEN | GARTEN & GEBÄUDESERVICE';
+const DEFAULT_OWNER_EMAIL = 'eldegruen-service@gmx.de';
+
+// Angebotsdaten kommen verschlüsselt (base64) in der URL, z. B.:
+// angebot-annahme.html?d=eyJudW1iZXIiOiIyMDI2LTAwMSIsIC4uLn0=
+function getData(){
+  const p = new URLSearchParams(window.location.search);
+  const raw = p.get('d');
+  if(!raw) return null;
+  try{
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(raw)))));
+    // Kompakte 1-2-Buchstaben-Schlüssel (aus der App) auf sprechende Namen zurückmappen
+    return {
+      number: decoded.number ?? decoded.n,
+      date: decoded.date ?? decoded.d,
+      validUntil: decoded.validUntil ?? decoded.v,
+      customer: decoded.customer ?? decoded.c,
+      project: decoded.project ?? decoded.p,
+      amount: decoded.amount ?? decoded.a,
+      company: decoded.company ?? decoded.co ?? DEFAULT_COMPANY,
+      ownerEmail: decoded.ownerEmail ?? decoded.oe ?? DEFAULT_OWNER_EMAIL
+    };
+  }catch(e){ return null; }
+}
+
+function fmt(n){ return (parseFloat(n)||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €'; }
+function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+const data = getData();
+const content = document.getElementById('content');
+
+if(!data || !data.number){
+  content.innerHTML = `<div class="err"><div class="icon">⚠</div>Dieser Link ist leider ungültig oder unvollständig.<br>Bitte wende dich an den Absender des Angebots.</div>`;
+} else {
+  const companyName = data.company || DEFAULT_COMPANY;
+  const initial = (companyName.trim().charAt(0) || 'E').toUpperCase();
+
+  content.innerHTML = `
+    <div class="logowrap">
+      <img src="logo.png" alt="${escapeHtml(companyName)}" onerror="this.parentElement.innerHTML='<div class=&quot;fallback&quot;>${initial}</div>'">
+    </div>
+    <h1>${escapeHtml(companyName)}</h1>
+    <div class="tagline">Angebot zur Bestätigung</div>
+
+    <div class="doctitle-row">
+      <div class="dtline"></div>
+      <div class="docbadge">Nr. ${escapeHtml(data.number)}${data.date ? ' · ' + new Date(data.date).toLocaleDateString('de-DE') : ''}</div>
+      <div class="dtline"></div>
+    </div>
+
+    <div class="meta-box">
+      <div class="row"><span>Kunde</span><span>${escapeHtml(data.customer) || '—'}</span></div>
+      ${data.project ? `<div class="row"><span>Projekt</span><span>${escapeHtml(data.project)}</span></div>` : ''}
+      ${data.validUntil ? `<div class="row"><span>Gültig bis</span><span>${new Date(data.validUntil).toLocaleDateString('de-DE')}</span></div>` : ''}
+    </div>
+
+    <div class="amount-box">
+      <div class="amount-lbl">Angebotssumme</div>
+      <div class="amount">${fmt(data.amount)}</div>
+    </div>
+
+    <hr class="divider">
+
+    <div id="acceptArea">
+      <label class="chk">
+        <input type="checkbox" id="agb">
+        <span>Ich habe das Angebot inkl. Bedingungen zur Kenntnis genommen und nehme es hiermit verbindlich an.</span>
+      </label>
+      <button class="btn" id="acceptBtn" type="button" disabled>✔ Angebot verbindlich annehmen</button>
+      <button class="btn secondary" id="declineBtn" type="button">Noch nicht — später entscheiden</button>
+    </div>
+
+    <div class="state-box confirmed" id="confirmedBox">
+      <div class="icon">✔</div>
+      <h2>Vielen Dank!</h2>
+      <p>Bitte tippe im nächsten Schritt in deiner E-Mail-App nur noch auf <b>„Senden"</b> — damit ist deine Bestätigung offiziell beim Anbieter angekommen.</p>
+      <div class="fallback-msg">
+        Es hat sich keine Mail-App geöffnet? Dann kopiere den Bestätigungstext und sende ihn manuell an <b>${escapeHtml(data.ownerEmail || DEFAULT_OWNER_EMAIL)}</b>.<br><br>
+        <button class="btn ghost" id="copyConfirmBtn" type="button">📋 Bestätigungstext kopieren</button>
+        <button class="btn ghost" id="retryMailBtn" type="button" style="margin-top:8px;">✉️ Mail-App erneut öffnen</button>
+        <div class="copyfeedback" id="copyFeedback"></div>
+      </div>
+    </div>
+
+    <div class="state-box declined" id="declinedBox">
+      <div class="icon">⏳</div>
+      <h2>Kein Problem</h2>
+      <p>Du kannst dir das Angebot in Ruhe ansehen. Dieser Link bleibt gültig — komm einfach zurück, sobald du bereit bist.</p>
+      <button class="btn secondary" id="undoDeclineBtn" type="button" style="margin-top:14px;">↩ Doch jetzt annehmen</button>
+    </div>
+
+    <p class="note">Hinweis: Diese Seite öffnet nach dem Klick deine E-Mail-App mit einer bereits fertig formulierten Bestätigungsmail. Erst wenn diese Mail beim Anbieter eingegangen ist, gilt der Auftrag als angenommen — ein reiner Klick auf dieser Seite allein reicht (aus technischen Gründen dieser einfachen, serverlosen Lösung) noch nicht aus.</p>
+  `;
+
+  const acceptArea = document.getElementById('acceptArea');
+  const confirmedBox = document.getElementById('confirmedBox');
+  const declinedBox = document.getElementById('declinedBox');
+  const agb = document.getElementById('agb');
+  const acceptBtn = document.getElementById('acceptBtn');
+  const declineBtn = document.getElementById('declineBtn');
+
+  agb.addEventListener('change', ()=> acceptBtn.disabled = !agb.checked);
+
+  function confirmationSubjectAndBody(){
+    const now = new Date();
+    const stamp = now.toLocaleString('de-DE');
+    const subject = `Angebot ${data.number} — hiermit angenommen`;
+    const body =
+`Hallo,
+
+hiermit nehme ich Ihr Angebot Nr. ${data.number}${data.project ? ' für "' + data.project + '"' : ''} über ${fmt(data.amount)} verbindlich an.
+
+Bestätigt am: ${stamp}
+Kunde: ${data.customer || ''}
+
+Freundliche Grüße`;
+    return { subject, body };
+  }
+
+  function openMailClient(){
+    const { subject, body } = confirmationSubjectAndBody();
+    window.location.href = `mailto:${data.ownerEmail || DEFAULT_OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
+  acceptBtn.addEventListener('click', ()=>{
+    if(acceptBtn.disabled) return;
+    acceptBtn.disabled = true;
+    acceptBtn.innerHTML = `<span class="spin"></span> Öffne deine Mail-App …`;
+    openMailClient();
+    setTimeout(()=>{
+      acceptArea.style.display = 'none';
+      declinedBox.style.display = 'none';
+      confirmedBox.style.display = 'block';
+    }, 500);
+  });
+
+  declineBtn.addEventListener('click', ()=>{
+    acceptArea.style.display = 'none';
+    confirmedBox.style.display = 'none';
+    declinedBox.style.display = 'block';
+  });
+
+  document.getElementById('undoDeclineBtn').addEventListener('click', ()=>{
+    declinedBox.style.display = 'none';
+    acceptArea.style.display = 'block';
+  });
+
+  document.getElementById('retryMailBtn').addEventListener('click', openMailClient);
+
+  document.getElementById('copyConfirmBtn').addEventListener('click', async ()=>{
+    const { subject, body } = confirmationSubjectAndBody();
+    const fullText = `An: ${data.ownerEmail || DEFAULT_OWNER_EMAIL}\nBetreff: ${subject}\n\n${body}`;
+    const feedback = document.getElementById('copyFeedback');
+    try{
+      await navigator.clipboard.writeText(fullText);
+      feedback.textContent = 'Kopiert ✓ — jetzt in deine Mail-App einfügen und senden.';
+    }catch(e){
+      feedback.textContent = 'Kopieren nicht möglich — bitte Text manuell markieren und kopieren.';
+    }
+  });
+}
+</script>
+</body>
+</html>
