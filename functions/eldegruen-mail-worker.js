@@ -63,7 +63,7 @@
  */
 
 // ── Absenderadresse: MUSS bei Resend verifiziert sein (siehe Schritt 2) ──
-const FROM_EMAIL = 'Eldegruen <PLATZHALTER@deine-domain.de>'; // ← anpassen!
+const FROM_EMAIL = 'Eldegruen <eldegruen-service.de>'; // ← anpassen!
 const FROM_NAME_FALLBACK = 'Eldegruen';
 
 // Eldegruen-Rundlogo (identisch zum in der App hinterlegten Standard-Logo),
