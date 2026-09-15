@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELDEGRUEN – Garten & Gebäudeservice</title>
+<meta name="description" content="Professionelle Gartenpflege, Entrümpelung, Handwerk & Gebäudeservice in Parchim & MV.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-deep:   #0A1810;
+    --green-dark:   #0F2416;
+    --green-mid:    #1D9E75;
+    --green-light:  #5DCAA5;
+    --green-pale:   #9FE1CB;
+    --text-main:    #E8F5F0;
+    --text-muted:   #8BBBA5;
+    --border:       rgba(29,158,117,0.22);
+    --card-bg:      rgba(15,36,22,0.85);
+    --radius:       14px;
+  }
+
+  html { background: var(--green-deep); }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--green-deep);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 3rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* subtle radial glow in background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 520px;
+    height: 520px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(29,158,117,0.13) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Logo ── */
+  .logo-ring {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 2px solid var(--green-mid);
+    padding: 4px;
+    margin-bottom: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--green-dark);
+    box-shadow: 0 0 0 1px rgba(29,158,117,0.15);
+  }
+
+  .logo-ring img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* ── Brand name ── */
+  .brand-name {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    color: var(--text-main);
+    text-align: center;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+
+  .brand-name span {
+    color: var(--green-mid);
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    color: var(--green-mid);
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .brand-desc {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.55;
+    max-width: 300px;
+    margin-bottom: 1.1rem;
+  }
+
+  /* ── Availability badge ── */
+  .avail-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--green-mid);
+    border-radius: 99px;
+    padding: 5px 16px;
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    color: var(--green-light);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+
+  .avail-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green-mid);
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── Section label ── */
+  .section-label {
+    font-size: 9.5px;
+    letter-spacing: 2.5px;
+    color: var(--text-muted);
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 0.85rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::before,
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Link cards ── */
+  .links {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1.75rem;
+  }
+
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 13px 14px;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    transition: border-color 0.18s, background 0.18s;
+    cursor: pointer;
+  }
+
+  .link-card:hover {
+    border-color: var(--green-mid);
+    background: rgba(29,158,117,0.08);
+  }
+
+  .icon-box {
+    width: 46px;
+    height: 46px;
+    border-radius: 11px;
+    background: rgba(29,158,117,0.12);
+    border: 1px solid rgba(29,158,117,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 22px;
+  }
+
+  .card-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  .card-sub {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .card-badge {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    padding: 3px 9px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .badge-green  { background: rgba(29,158,117,0.18); color: var(--green-light); border: 1px solid rgba(29,158,117,0.35); }
+  .badge-warm   { background: rgba(239,159,39,0.15); color: #EFC965;            border: 1px solid rgba(239,159,39,0.3); }
+  .badge-blue   { background: rgba(55,138,221,0.15); color: #85B7EB;            border: 1px solid rgba(55,138,221,0.3); }
+  .badge-red    { background: rgba(226,75,74,0.13);  color: #F09595;            border: 1px solid rgba(226,75,74,0.3); }
+
+  .chevron {
+    color: var(--text-muted);
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-left: 2px;
+  }
+
+  /* ── Social row ── */
+  .social-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .social-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    text-decoration: none;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    background: var(--card-bg);
+    transition: border-color 0.18s, color 0.18s;
+  }
+
+  .social-btn:hover {
+    border-color: var(--green-mid);
+    color: var(--text-main);
+  }
+
+  .social-btn .ico { font-size: 16px; }
+
+  /* ── Footer ── */
+  .footer {
+    font-size: 11px;
+    color: rgba(139,187,165,0.45);
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── WhatsApp FAB ── */
+  .wa-fab {
+    position: fixed;
+    bottom: 22px;
+    right: 18px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #25D366;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(37,211,102,0.35);
+    z-index: 99;
+    transition: transform 0.15s;
+  }
+
+  .wa-fab:hover { transform: scale(1.07); }
+
+  .wa-fab svg { width: 26px; height: 26px; fill: #fff; }
+
+  @media (max-width: 380px) {
+    .brand-name { font-size: 24px; }
+    .page { padding: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Logo -->
+  <div class="logo-ring">
+    <img src="https://eldegruen-service.de/logo.png" alt="ELDEGRUEN Logo">
+  </div>
+
+  <!-- Brand -->
+  <h1 class="brand-name">ELDE<span>GRUEN</span><sup style="font-size:11px;vertical-align:super;margin-left:2px;color:var(--text-muted)">®</sup></h1>
+  <p class="brand-sub">Garten &amp; Gebäudeservice</p>
+  <p class="brand-desc">Grünflächenpflege · Entrümpelung · Handwerk<br>Domsühl &amp; ganz Mecklenburg-Vorpommern</p>
+
+  <div class="avail-badge">
+    <span class="avail-dot"></span>
+    Jetzt anfragen · Antwort in 24 h
+  </div>
+
+  <!-- Leistungen -->
+  <div class="section-label">Leistungen &amp; Services</div>
+
+  <div class="links">
+
+    <a class="link-card" href="https://eldegruen-service.de" target="_blank" rel="noopener">
+      <div class="icon-box">🌐</div>
+      <div class="card-text">
+        <div class="card-title">Eldegruen-Service.de</div>
+        <div class="card-sub">Startseite — alle Leistungen im Überblick</div>
+      </div>
+      <span class="card-badge badge-green">Start</span>
+      <span class="chevron">›</span>
+    </a>
+
+    <a class="link-card" href="https://eldegruen-service.de/#leistungen" target="_blank" rel="noopener">
+      <div class="icon-box">🌿</div>
+      <div class="card-text">
+        <div class="card-title">Grünflächenpflege</div>
+        <div class="card-sub">Rasenmähen · Heckenschnitt · Beetpflege · Laubbeseitigung</div>
+      </div>
+      <span class="card-badge badge-green">Beliebt</span>
+      <span class="chevron">›</span>
+    </a>
+
+    <a class="link-card" href="https://eldegruen-service.de/#leistungen" target="_blank" rel="noopener">
+      <div class="icon-box">🏗️</div>
+      <div class="card-text">
+        <div class="card-title">Entrümpelung &amp; Abriss</div>
+        <div class="card-sub">Wohnungen · Keller · Gewerbe · besenrein</div>
+      </div>
+      <span class="chevron">›</span>
+    </a>
+
+    <a class="link-card" href="https://eldegruen-service.de/#leistungen" target="_blank" rel="noopener">
+      <div class="icon-box">🔨</div>
+      <div class="card-text">
+        <div class="card-title">Handwerksarbeiten</div>
+        <div class="card-sub">Reparaturen · Sanierungen · Privat &amp; Gewerbe</div>
+      </div>
+      <span class="chevron">›</span>
+    </a>
+
+    <a class="link-card" href="https://eldegruen-service.de/#leistungen" target="_blank" rel="noopener">
+      <div class="icon-box">🌳</div>
+      <div class="card-text">
+        <div class="card-title">Gartengestaltung &amp; GaLaBau</div>
+        <div class="card-sub">Neuanlagen · Pflasterarbeiten · Teiche · Wegebau</div>
+      </div>
+      <span class="chevron">›</span>
+    </a>
+
+    <a class="link-card" href="https://eldegruen-service.de/#leistungen" target="_blank" rel="noopener">
+      <div class="icon-box">🏢</div>
+      <div class="card-text">
+        <div class="card-title">Gebäudepflege &amp; Facility Management</div>
+        <div class="card-sub">Fassade · Hochdruckreinigung · Treppenhaus · Liegenschaften</div>
+      </div>
+      <span class="chevron">›</span>
+    </a>
+
+    <a class="link-card" href="https://eldegruen-service.de/#leistungen" target="_blank" rel="noopener">
+      <div class="icon-box">❄️</div>
+      <div class="card-text">
+        <div class="card-title">Winterdienst</div>
+        <div class="card-sub">Räumen · Streuen · Wartungsvertrag · ab 49 €</div>
+      </div>
+      <span class="card-badge badge-blue">Saison</span>
+      <span class="chevron">›</span>
+    </a>
+
+    <a class="link-card" href="https://eldegruen-service.de/#kontakt" target="_blank" rel="noopener">
+      <div class="icon-box">📋</div>
+      <div class="card-text">
+        <div class="card-title">Kostenloses Angebot anfragen</div>
+        <div class="card-sub">Vor-Ort-Termin · Festpreis · keine versteckten Kosten</div>
+      </div>
+      <span class="card-badge badge-warm">Gratis</span>
+      <span class="chevron">›</span>
+    </a>
+
+  </div>
+
+  <!-- Kontakt -->
+  <div class="section-label">Direktkontakt</div>
+
+  <div class="links" style="margin-bottom:1.5rem;">
+
+    <a class="link-card" href="https://wa.me/4915204718720?text=Hallo%20ELDEGRUEN%2C%20ich%20interessiere%20mich%20f%C3%BCr%20Ihre%20Leistungen." target="_blank" rel="noopener">
+      <div class="icon-box">💬</div>
+      <div class="card-text">
+        <div class="card-title">WhatsApp schreiben</div>
+        <div class="card-sub">Schnelle Rückmeldung · +49 1520 4718720</div>
+      </div>
+      <span class="card-badge badge-green">Schnell</span>
+      <span class="chevron">›</span>
+    </a>
+
+    <a class="link-card" href="tel:+4915204718720">
+      <div class="icon-box">📞</div>
+      <div class="card-text">
+        <div class="card-title">Direkt anrufen</div>
+        <div class="card-sub">Mo–Fr 07–20 Uhr · Sa 08–16 Uhr</div>
+      </div>
+      <span class="chevron">›</span>
+    </a>
+
+    <a class="link-card" href="https://www.google.com/search?q=ELDEGRUEN+Garten+%26+Geb%C3%A4udeservice+Doms%C3%BChl" target="_blank" rel="noopener">
+      <div class="icon-box">⭐</div>
+      <div class="card-text">
+        <div class="card-title">Google Bewertung</div>
+        <div class="card-sub">Ihre Meinung hilft uns — jetzt bewerten</div>
+      </div>
+      <span class="chevron">›</span>
+    </a>
+
+  </div>
+
+  <!-- Social -->
+  <div class="social-row">
+    <a class="social-btn" href="https://instagram.com/eldegruen" target="_blank" rel="noopener">
+      <span class="ico">📸</span> Instagram
+    </a>
+    <a class="social-btn" href="https://eldegruen-service.de" target="_blank" rel="noopener">
+      <span class="ico">🌐</span> Website
+    </a>
+  </div>
+
+  <p class="footer">© 2026 ELDEGRUEN | Domsühl, Mecklenburg-Vorpommern</p>
+
+</div>
+
+<!-- WhatsApp FAB -->
+<a class="wa-fab" href="https://wa.me/4915204718720?text=Hallo%20ELDEGRUEN%2C%20ich%20interessiere%20mich%20f%C3%BCr%20Ihre%20Leistungen." target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+</body>
+</html>
